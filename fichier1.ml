@@ -98,4 +98,34 @@ let puztranf =  [
     ((2, 0), Island 3); ((2, 1), Nothing); ((2, 2), Island 8); ((2, 3), Nothing); ((2, 4), Island 4);
     ((3, 0), Nothing);  ((3, 1), Nothing); ((3, 2), Nothing);  ((3, 3), Nothing); ((3, 4), Nothing);
     ((4, 0), Island 3); ((4, 1), Nothing); ((4, 2), Island 5); ((4, 3), Nothing); ((4, 4), Island 3)
-];;
+  ];;
+
+
+
+
+let remplacerValPar= fun  (x1,y1) repl p ->
+  let rec aux = fun  p l->
+    match p with
+    |((x2,y2),smth)::t -> if x1=y1 && x2=y2 then l@[((x2,y2),repl)]@t else aux t (l@[((x2,y2),smth)]) 
+    |[]->l
+  in aux p [];;
+
+(*supposons que le premier point soit le point le plus a gauche ou le plus en haut des deux*)
+let tracerPont =fun (x1,y1) (x2,y2) pont puzl -> (* (0,2) (4,2) (Insland 10) puztranf *)
+  let rec tracerVertical=fun p l ->
+    match p with
+    |((x3,y3),Nothing)::t-> if y3=y2 && x3>x1 && x3<x2 then tracerVertical t (((x3,y3),pont)::l)   else tracerVertical t (((x3,y3),Nothing)::l)
+    |[]->l
+    |(x,y)::t -> tracerVertical t ((x,y)::l)
+  in
+  let rec tracerHorizontal=fun p l ->
+        match p with
+    |((x3,y3),Nothing)::t-> if x3=x2 && y3>y1 && y3<y2 then tracerVertical t (((x3,y3),pont)::l)   else tracerVertical t (((x3,y3),Nothing)::l)
+    |[]->l
+    |(x,y)::t -> tracerVertical t ((x,y)::l)
+  in
+  if y2=y1 then List.rev (tracerVertical puzl []) else List.rev (tracerHorizontal puzl []);;
+
+
+tracerPont (0,2) (4,2) (Island 10) puztranf;;
+
