@@ -130,3 +130,73 @@ let tracerPont =fun (x1,y1) (x2,y2) pont puzl -> (* (0,2) (4,2) (Insland 10) puz
 
 tracerPont (0,0) (0,4) (Island 10) puztranf;;
 
+(*Max*)
+
+let trouverPontVerticaleBas= fun (x1,y1) puzzle ->
+  let rec aux = fun l ->
+    match l with
+    |((x2,y2),Bridge({v=true;d=true}))::t-> if x2<>x1 && y1=y2  then  ((x2,y2),Bridge({v=true;d=true})) else aux t
+    |((x2,y2),Bridge({v=true;d=false}))::t-> if x2<>x1 && y1=y2  then  ((x2,y2),Bridge({v=true;d=false})) else aux t
+    |[] ->((x1,y1),Nothing)
+    |_::t -> aux t
+  in aux (commencer (x1,y1) puzzle);;
+
+let trouverPontVerticaleHaut = fun  (x1,y1) puzzle ->
+  let rec aux =  fun l ->
+    match l with
+    |((x2,y2),Bridge({v=true;d=true}))::t-> if x2<>x1 && y1=y2  then  ((x2,y2),Bridge({v=true;d=true})) else aux t
+    |((x2,y2),Bridge({v=true;d=false}))::t-> if x2<>x1 && y1=y2  then  ((x2,y2),Bridge({v=true;d=false})) else aux t
+    |[] ->((x1,y1),Nothing)
+    |_::t -> aux t
+  in aux (commencer (x1,y1) (List.rev (puzzle)));;
+
+let trouverPontHorizontaleDroite = fun  (x1,y1) puzzle ->
+  let rec aux =  fun l ->
+    match l with
+    |((x2,y2),Bridge({v=false;d=true}))::t -> if x2=x1 && y1<>y2 then  ((x2,y2),Bridge({v=false;d=true})) else aux t
+    |((x2,y2),Bridge({v=false;d=false}))::t -> if x2=x1 && y1<>y2 then ((x2,y2),Bridge({v=false;d=false})) else aux t
+    |[] ->((x1,y1+1),Nothing)
+    |_::t -> aux t
+  in aux (commencer (x1,y1)( puzzle));;
+
+let trouverPontHorizontaleGauche = fun  (x1,y1) puzzle ->
+  let rec aux =  fun l ->
+    match l with
+    |((x2,y2),Bridge({v=false;d=true}))::t -> if x2=x1 && y1<>y2 then  ((x2,y2),Bridge({v=false;d=true})) else aux t
+    |((x2,y2),Bridge({v=false;d=false}))::t -> if x2=x1 && y1<>y2 then  ((x2,y2),Bridge({v=false;d=false})) else aux t
+    |[] ->((x1,y1),Nothing)
+    |_::t -> aux t
+  in aux (commencer (x1,y1) (List.rev (puzzle)));;
+
+
+trouverPontVerticaleHaut (2,0) transfoPuzzle;;
+trouverPontVerticaleBas (2,2) transfoPuzzle;;
+trouverPontHorizontaleDroite (2,0) transfoPuzzle;;
+trouverIleHorizontaleGauche (2,2) transfoPuzzle;;
+
+
+let nbrPont = fun (x1,y1) puzzle ->
+  (if (trouverPontVerticaleHaut (x1,y1) puzzle)=((x1-1,y1),Bridge({v=true;d=true})) then 2  else 0)
+  +    
+    (if (trouverPontVerticaleBas (x1,y1) puzzle)=((x1+1,y1),Bridge({v=true;d=true})) then 2 else 0)
+  +    
+    (if (trouverPontHorizontaleDroite (x1,y1) puzzle)=((x1,y1+1),Bridge({v=false;d=true})) then 2 else 0)
+  +
+    (if (trouverPontHorizontaleGauche (x1,y1) puzzle)=((x1,y1-1),Bridge({v=false;d=true})) then 2 else 0)
+
+  +
+
+    (if (trouverPontVerticaleHaut (x1,y1) puzzle)=((x1-1,y1),Bridge({v=true;d=false})) then 1  else 0)
+  +    
+    (if (trouverPontVerticaleBas (x1,y1) puzzle)=((x1+1,y1),Bridge({v=true;d=false})) then 1 else 0)
+  +    
+    (if (trouverPontHorizontaleDroite (x1,y1) puzzle)=((x1,y1+1),Bridge({v=false;d=false})) then 1  else 0)
+  +
+    (if (trouverPontHorizontaleGauche (x1,y1) puzzle)=((x1,y1-1),Bridge({v=false;d=false})) then 1 else 0);;
+
+nbrPont (2,0) transfoPuzzle;;
+nbrPont (2,2) transfoPuzzle;;
+nbrPont (3,1) transfoPuzzle;;
+
+let nbrPontRestant = fun (x1,y1) puzzle ->
+  let  x=(importanceIle((x1,y1) puzzle))-(nbrPont((x1,y1) puzzle))
