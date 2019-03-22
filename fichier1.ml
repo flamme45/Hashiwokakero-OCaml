@@ -49,6 +49,7 @@ let trouverIleVerticaleBas = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t-> None
     |_::t -> aux t
   in aux (commencerA (x1,y1) puzzle);;
 
@@ -57,6 +58,7 @@ let trouverIleVerticaleHaut = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t-> None                                  
     |_::t -> aux t
   in aux (commencerA (x1,y1) (List.rev (puzzle)));;
 
@@ -66,6 +68,7 @@ let trouverIleHorizontaleDroite = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t-> None                                  
     |_::t ->aux t
   in aux (commencerA (x1,y1) (puzzle));;
 
@@ -74,6 +77,7 @@ let trouverIleHorizontaleGauche = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t-> None                                  
     |_::t->aux t
   in aux (commencerA (x1,y1) (List.rev (puzzle)));;
 
@@ -100,7 +104,7 @@ let tranf = fun p ->
 let p2 =  [
     ((0, 0), Nothing);  ((0, 1), Nothing); ((0, 2), Island 2); ((0, 3), Nothing); ((0, 4), Nothing);
     ((1, 0), Nothing);  ((1, 1), Nothing); ((1, 2), Nothing);  ((1, 3), Nothing); ((1, 4), Nothing);
-    ((2, 0), Island 3); ((2, 1), Nothing); ((2, 2), Island 8); ((2, 3), Nothing); ((2, 4), Island 4);
+    ((2, 0), Island 3); ((2, 1), Bridge{v=true;d=true}); ((2, 2), Island 8); ((2, 3), Nothing); ((2, 4), Island 4);
     ((3, 0), Nothing);  ((3, 1), Nothing); ((3, 2), Nothing);  ((3, 3), Nothing); ((3, 4), Nothing);
     ((4, 0), Island 3); ((4, 1), Nothing); ((4, 2), Island 5); ((4, 3), Nothing); ((4, 4), Island 3)
   ];;
@@ -206,3 +210,4 @@ importanceIle (2,2) p2;;
 let nbrPontRestant = fun (x1,y1) puzzle ->
   (importanceIle (x1,y1) puzzle) - (nbrPont (x1,y1) puzzle);;
 
+trouverIleHorizontaleDroite(2,0) p2;;
