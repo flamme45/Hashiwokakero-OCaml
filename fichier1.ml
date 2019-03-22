@@ -120,12 +120,13 @@ let tracerPont =fun (x1,y1) (x2,y2) pont puzl -> (* (0,2) (4,2) (Insland 10) puz
   in
   let rec tracerHorizontal=fun p l ->
         match p with
-    |((x3,y3),Nothing)::t-> if x3=x2 && y3>y1 && y3<y2 then tracerVertical t (((x3,y3),pont)::l)   else tracerVertical t (((x3,y3),Nothing)::l)
+    |((x3,y3),Nothing)::t-> if x3=x2 && y3>y1 && y3<y2 then tracerHorizontal t (((x3,y3),pont)::l)   else tracerHorizontal t (((x3,y3),Nothing)::l)
     |[]->l
-    |(x,y)::t -> tracerVertical t ((x,y)::l)
+    |(x,y)::t -> tracerHorizontal t ((x,y)::l)
   in
-  if y2=y1 then List.rev (tracerVertical puzl []) else List.rev (tracerHorizontal puzl []);;
+  if y2=y1 then List.rev (tracerVertical puzl [])
+  else List.rev (tracerHorizontal puzl []);;
 
 
-tracerPont (0,2) (4,2) (Island 10) puztranf;;
+tracerPont (0,0) (0,4) (Island 10) puztranf;;
 
