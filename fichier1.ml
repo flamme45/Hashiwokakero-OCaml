@@ -49,7 +49,7 @@ let trouverIleVerticaleBas = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t-> None
+    |((x2,y2),Bridge{v=x;d=y})::t when x1<>x2 -> None
     |_::t -> aux t
   in aux (commencerA (x1,y1) puzzle);;
 
@@ -58,7 +58,7 @@ let trouverIleVerticaleHaut = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t-> None                                  
+    |((x2,y2),Bridge{v=x;d=y})::t when x1<>x2 -> None                                  
     |_::t -> aux t
   in aux (commencerA (x1,y1) (List.rev (puzzle)));;
 
@@ -68,7 +68,7 @@ let trouverIleHorizontaleDroite = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t-> None                                  
+    |((x2,y2),Bridge{v=x;d=y})::t when y1<>y2-> None                                  
     |_::t ->aux t
   in aux (commencerA (x1,y1) (puzzle));;
 
@@ -77,7 +77,7 @@ let trouverIleHorizontaleGauche = fun (x1,y1) puzzle ->
     match l with
     |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
     |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t-> None                                  
+    |((x2,y2),Bridge{v=x;d=y})::t when y1<>y2 -> None                                  
     |_::t->aux t
   in aux (commencerA (x1,y1) (List.rev (puzzle)));;
 
@@ -112,8 +112,6 @@ let p2 =  [
   ];;
 
 
-
-
 (*
 let remplacerValPar= fun  (x1,y1) repl p ->
   let rec aux = fun  p l->
@@ -122,6 +120,7 @@ let remplacerValPar= fun  (x1,y1) repl p ->
     |[]->l
   in aux p [];;
  *)
+
 (*Methode qui trace un pont entre deux points et diminue leur importance, elle prend en parametre un booleen pour savoir si le pont est double  *)
 let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10) puztranf *)
   let nbponts = if estDouble then 2 else 1 in
@@ -142,6 +141,7 @@ let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10
   if y2=y1 then if x1<x2 then  List.rev (tracerVertical (x1,y1) (x2,y2) puzl []) else List.rev (tracerVertical (x2,y2) (x1,y1) puzl [])
   else  if y2>y1 then List.rev (tracerHorizontal (x1,y1) (x2,y2) puzl []) else List.rev (tracerHorizontal (x2,y2) (x1,y1) puzl []);;
 
+tracerPont
 (*Max*)
 
 
@@ -214,5 +214,42 @@ importanceIle (2,2) p2;;
 let nbrPontRestant = fun (x1,y1) puzzle ->
   (importanceIle (x1,y1) puzzle) - (nbrPont (x1,y1) puzzle);;
 
-importanceIle (2,2)  (tracerPont (0,0) (2,2) true p2);;
 
+let pr =fun a ->
+  match a with
+  | None -> (-10,-10)
+  |Some ((x,y),Island(t)) -> (x,y)
+ ;;
+
+
+ 
+ let tracerPontToutesDir = fun (x1,y1) estDouble puzl ->
+   let p =puzl in
+   let x =(trouverIleVerticaleBas (x1,y1) p) in
+   let p =( if (x<>None) then (tracerPont (pr(x)) (x1,y1) estDouble p) else p) in
+   let x =(trouverIleVerticaleHaut (x1,y1) p) in
+   let p =( if (x<>None) then (tracerPont (pr(x)) (x1,y1) estDouble p) else p) in
+   let x=(trouverIleHorizontaleDroite (x1,y1) p) in
+   let p= ( if (x<>None) then (tracerPont (pr(x)) (x1,y1) estDouble p) else p) in
+   let x =(trouverIleHorizontaleGauche (x1,y1) p) in
+   let p =( if (x<>None) then (tracerPont (pr(x)) (x1,y1) estDouble p) else p) in
+   p;;
+
+
+ let solution_simple1= fun puzzle ->
+  let rec aux = fun pdebut pfin ->
+    match pdebut with
+    |((x1,y1),Island(1))::t when (nbrIleVoisine (x1,y1) pfin)=1 ->  aux t (tracerPontToutesDir (x1,y1) false pfin) 
+    |((x1,y1),Island(2))::t when (nbrIleVoisine (x1,y1) pfin)=1 ->  aux t (tracerPontToutesDir (x1,y1) true pfin)
+    |((x1,y1),Island(4))::t when (nbrIleVoisine (x1,y1) pfin)=2 ->  aux t (tracerPontToutesDir (x1,y1) true pfin)
+    |((x1,y1),Island(6))::t when (nbrIleVoisine (x1,y1) pfin)=3 ->  aux t (tracerPontToutesDir (x1,y1) true pfin)
+    |((x1,y1),Island(8))::t when (nbrIleVoisine (x1,y1) pfin)=4 ->  aux t (tracerPontToutesDir (x1,y1) true pfin)
+    |h::t-> aux t pfin
+    |[]-> pfin
+  in aux puzzle puzzle ;;
+
+ let x=solution_simple1 p2;;
+
+ nbrIleVoisine (4,4) x;;
+
+let y= solution_simple1(solution_simple1(solution_simple1(solution_simple1(solution_simple1(solution_simple1(solution_simple1(solution_simple1(solution_simple1 p2))))))));;
