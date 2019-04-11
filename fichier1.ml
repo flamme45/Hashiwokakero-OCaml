@@ -167,6 +167,30 @@ let remplacerValPar= fun  (x1,y1) repl p ->
   in aux p [];;
  *)
 
+
+
+let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10) puztranf *)
+  let nbponts = if estDouble then 2 else 1 in
+  let rec tracerVertical=fun (x1,y1) (x2,y2) p l ->
+    match p with
+    |((x3,y3),Nothing)::t when y3=y2 && x3>x1 && x3<x2 -> tracerVertical (x1,y1) (x2,y2) t (((x3,y3),Bridge{v=true;d=estDouble})::l)
+    |((x3,y3),Bridge{v=a;d=b})::t when y3=y2 && x3>x1 && x3<x2 && not b && not estDouble -> tracerVertical (x1,y1) (x2,y2) t (((x3,y3),Bridge{v=a;d=true})::l)
+    |((x3,y3),Island(i))::t when (x3=x1 && y3=y1) || (x3=x2 && y3=y2) -> tracerVertical (x1,y1) (x2,y2) t (((x3,y3),Island(i-nbponts))::l)
+    |[]->l
+    |(x,y)::t -> tracerVertical (x1,y1) (x2,y2) t ((x,y)::l)
+  in
+  let rec tracerHorizontal=fun (x2,y1) (x2,y2)  p l ->
+    match p with
+    |((x3,y3),Nothing)::t when  x3=x2 && y3>y1 && y3<y2 -> tracerHorizontal (x1,y1) (x2,y2) t (((x3,y3),Bridge{v=false;d=estDouble})::l)
+    |((x3,y3),Island(i))::t when (x3=x1 && y3=y1) || (x3=x2 && y3=y2) -> tracerHorizontal (x1,y1) (x2,y2) t (((x3,y3),Island(i-nbponts))::l)
+    |((x3,y3),Bridge{v=a;d=b})::t when x3=x2 && y3>y1 && y3<y2 && not b && not estDouble -> tracerVertical (x1,y1) (x2,y2) t (((x3,y3),Bridge{v=a;d=true})::l)                                                              
+    |[]->l
+    |(x,y)::t -> tracerHorizontal (x1,y1) (x2,y2) t ((x,y)::l)
+  in
+  if y2=y1 then if x1<x2 then  List.rev (tracerVertical (x1,y1) (x2,y2) puzl []) else List.rev (tracerVertical (x2,y2) (x1,y1) puzl [])
+  else  if y2>y1 then List.rev (tracerHorizontal (x1,y1) (x2,y2) puzl []) else List.rev (tracerHorizontal (x2,y2) (x1,y1) puzl []);;
+
+(*
 (*Methode qui trace un pont entre deux points et diminue leur importance, elle prend en parametre un booleen pour savoir si le pont est double  *)
 let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10) puztranf *)
   let nbponts = if estDouble then 2 else 1 in
@@ -186,7 +210,7 @@ let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10
   in
   if y2=y1 then if x1<x2 then  List.rev (tracerVertical (x1,y1) (x2,y2) puzl []) else List.rev (tracerVertical (x2,y2) (x1,y1) puzl [])
   else  if y2>y1 then List.rev (tracerHorizontal (x1,y1) (x2,y2) puzl []) else List.rev (tracerHorizontal (x2,y2) (x1,y1) puzl []);;
-
+ *)
 (*Max*)
 
 
@@ -263,10 +287,11 @@ let nbrPontRestant = fun (x1,y1) puzzle ->
 let pr =fun a ->
   match a with
   | None -> (-10,-10)
-  |Some ((x,y),Island(t)) -> (x,y)
+  | Some ((x,y),Island(t)) -> (x,y)
+  | _ -> failwith "pute"
  ;;
 
-
+                              
  (*Methode qui trace des ponts dans toutes les directions en partant d'un point*)
  let tracerPontToutesDir = fun (x1,y1) estDouble puzl ->
    let p =puzl in
@@ -282,29 +307,7 @@ let pr =fun a ->
 
 
  (*Methode qui affiche le premier element de la liste*)
- let toString = fun p->
-   if p<>[] then
-     (if (snd(fst(List.hd p)))=0 then print_string("\n") else print_string(""))
-   else
-     print_string("");
-   match p with
-   |((x1,y1),Island(i))::t ->print_string("("^(string_of_int(x1))^","^(string_of_int(y1))^"): Ile "^string_of_int(i)^" ");
-   |((x1,y1),Bridge({v=false;d=false}))::t ->print_string("("^(string_of_int(x1))^","^(string_of_int(y1))^"): ----- ");
-   |((x1,y1),Bridge({v=false;d=true}))::t ->print_string("("^(string_of_int(x1))^","^(string_of_int(y1))^"): ===== ");
-   |((x1,y1),Bridge({v=true;d=false}))::t ->print_string("("^(string_of_int(x1))^","^(string_of_int(y1))^"):   |   ");
-   |((x1,y1),Bridge({v=true;d=true}))::t ->print_string("("^(string_of_int(x1))^","^(string_of_int(y1))^"):   ||  ");
-   |((x1,y1),Nothing)::t ->print_string("("^(string_of_int(x1))^","^(string_of_int(y1))^"):       ");
-   |[]-> print_string("\n")
- ;;
 
- (*Methode qui affiche tout le puzzle*)
- let toStringP = fun p ->
-   let rec aux =fun p1->
-     toString p1;
-     match p1 with
-     |h::t-> aux t
-     |[]-> print_string("");
-   in aux p;;
 
  (*methode qui crée des ponts si
   * Soit n l'importance et k le nombre de voisin d'une ile
@@ -324,6 +327,29 @@ let pr =fun a ->
      |h::t-> aux t pfin
      |[]-> pfin
    in aux puzzle puzzle ;;
+
+
+
+
+
+
+ let solution_simple3= fun puzzle ->
+   let rec aux = fun pdebut pfin ->
+     match pdebut with
+     |((x1,y1),Island(n))::t when
+            let m = (importanceIle (x1,y1) pfin) in
+            (m<>0&&((m+1) mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(((m+1)/2))) ->
+       aux t (tracerPontToutesDir (x1,y1) false pfin)
+     |((x1,y1),Island(n))::t when
+            let m = (importanceIle (x1,y1) pfin) in
+            (m<>0&&(m mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(m/2)) ->
+       aux t (tracerPontToutesDir (x1,y1) true pfin)
+
+     |h::t-> aux t pfin
+     |[]-> pfin
+   in aux puzzle puzzle ;;
+ 
+
  
  (*methode bis*)(*
  let solution_simple1= fun puzzle ->
@@ -342,11 +368,84 @@ let pr =fun a ->
     |[]-> pfin
   in aux puzzle puzzle ;;
                  *)
- p2;;
 
- toStringP p2;;
- 
- let x=solution_simple2 p2;;
-let z = solution_simple2 x;;
-toStringP x;;
-toStringP z;;
+
+
+let solTout0 = fun puzzle ->
+  let rec aux= fun p ->
+    match p with
+    |((x,y),Island(i))::t when i<>0 -> false
+    |[]->true
+    |h::t -> aux t
+  in aux puzzle;;
+
+let sontEgaux = fun p1 p2 ->
+  let rec aux= fun  p1 p2 ->
+    match (p1,p2) with
+    | ((x1,y1)::t1,(x2,y2)::t2) when x1<>x2 || y1<>y2 -> false
+    | ([],_) | (_,[])->true
+    | (h1::t1,h2::t2) -> aux t1 t2
+  in aux p1 p2 ;;
+
+let resoudre =  fun p ->
+  let rec aux = fun pdebut ->
+    let pfin = solution_simple3 pdebut in
+    if (solTout0 pfin) then(  print_string("\nPuzzle résolu\n"); pfin)
+       else(
+         if (sontEgaux (pfin) (pdebut)) then( print_string("Puzzle non soluble et non fini\n"); pfin)
+         else aux pfin)
+  in aux p;;
+
+
+let remplacer0ParVal= fun pfini pdebut ->
+  let rec aux=fun p1 p2 pfinal ->
+    match (p1,p2) with
+    |(_::t1,((x1,y1),Island(i))::t2) -> aux t1 t2 (pfinal@[((x1,y1),Island(i))])
+    |(((x1,y1),Bridge{v=a;d=b})::t1),_::t2->aux t1 t2 (pfinal@[((x1,y1),Bridge{v=a;d=b})])
+    |(h1::t1,h2::t2)->aux t1 t2 (pfinal@[h1])
+    |([],[])->pfinal
+    | _ -> failwith "pute 2"
+  in aux pfini pdebut [];;                                     
+
+let creerListeListe = fun p ->
+  let rec aux=fun pdebut ligne ppfin ->
+    match pdebut with
+    |((x,y),z)::t when y=0 &&(List.length ligne)<>0 -> aux t ([z]) (ppfin@[ligne])
+    |((x,y),z)::t -> aux t (ligne@[z]) (ppfin)
+    | [] -> ppfin@[ligne]
+  in aux p [] [];;
+
+
+let resultatFinal = fun p ->
+  let p1=tranf p in
+  let p2 = resoudre p1 in
+  let p3 = remplacer0ParVal p2 p1 in
+  (*toStringP p3 ;*)
+  let p4 = creerListeListe p3 in
+  p4;;
+
+
+let toStringLigne = fun p ->
+  let rec aux = fun  p s ->
+    match p with
+   |Island(i)::t ->aux t s^(" Ile "^string_of_int(i)^" ");
+   |Bridge({v=false;d=false})::t ->aux t s^(" ----- ");
+   |Bridge({v=false;d=true})::t ->aux t s^(" ===== ");
+   |Bridge({v=true;d=false})::t ->aux t s^("   |   ");
+   |Bridge({v=true;d=true})::t ->aux t s^("   ||  ");
+   |Nothing::t ->aux t s^("       ");
+   |[]-> s^"\n"
+  in aux p ""
+
+let toString = fun p ->
+  let rec aux = fun p1 s->
+    match p1 with
+    |[] -> s
+    |a::t -> aux t s^(toStringLigne a)
+  in aux p "";;
+
+let main()=
+  print_string (toString (resultatFinal p1));;
+
+
+main ();;
