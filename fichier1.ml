@@ -190,27 +190,7 @@ let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10
   if y2=y1 then if x1<x2 then  List.rev (tracerVertical (x1,y1) (x2,y2) puzl []) else List.rev (tracerVertical (x2,y2) (x1,y1) puzl [])
   else  if y2>y1 then List.rev (tracerHorizontal (x1,y1) (x2,y2) puzl []) else List.rev (tracerHorizontal (x2,y2) (x1,y1) puzl []);;
 
-(*
-(*Methode qui trace un pont entre deux points et diminue leur importance, elle prend en parametre un booleen pour savoir si le pont est double  *)
-let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10) puztranf *)
-  let nbponts = if estDouble then 2 else 1 in
-  let rec tracerVertical=fun (x1,y1) (x2,y2) p l ->
-    match p with
-    |((x3,y3),Nothing)::t-> if y3=y2 && x3>x1 && x3<x2 then tracerVertical (x1,y1) (x2,y2) t (((x3,y3),Bridge{v=true;d=estDouble})::l)   else tracerVertical (x1,y1) (x2,y2) t (((x3,y3),Nothing)::l)
-    |[]->l
-    |((x3,y3),Island(i))::t when (x3=x1 && y3=y1) || (x3=x2 && y3=y2) -> tracerVertical (x1,y1) (x2,y2) t (((x3,y3),Island(i-nbponts))::l)
-    |(x,y)::t -> tracerVertical (x1,y1) (x2,y2) t ((x,y)::l)
-  in
-  let rec tracerHorizontal=fun (x2,y1) (x2,y2)  p l ->
-    match p with
-    |((x3,y3),Nothing)::t-> if x3=x2 && y3>y1 && y3<y2 then tracerHorizontal (x1,y1) (x2,y2) t (((x3,y3),Bridge{v=false;d=estDouble})::l)   else tracerHorizontal (x1,y1) (x2,y2) t (((x3,y3),Nothing)::l)
-    |((x3,y3),Island(i))::t when (x3=x1 && y3=y1) || (x3=x2 && y3=y2) -> tracerHorizontal (x1,y1) (x2,y2) t (((x3,y3),Island(i-nbponts))::l)
-    |[]->l
-    |(x,y)::t -> tracerHorizontal (x1,y1) (x2,y2) t ((x,y)::l)
-  in
-  if y2=y1 then if x1<x2 then  List.rev (tracerVertical (x1,y1) (x2,y2) puzl []) else List.rev (tracerVertical (x2,y2) (x1,y1) puzl [])
-  else  if y2>y1 then List.rev (tracerHorizontal (x1,y1) (x2,y2) puzl []) else List.rev (tracerHorizontal (x2,y2) (x1,y1) puzl []);;
- *)
+
 (*Max*)
 
 
@@ -287,8 +267,8 @@ let nbrPontRestant = fun (x1,y1) puzzle ->
 let pr =fun a ->
   match a with
   | None -> (-10,-10)
-  | Some ((x,y),Island(t)) -> (x,y)
-  | _ -> failwith "pute"
+  | Some ((x,y),Island(t)) -> (x,y)   
+  | Some ((x,y),_)->(x,y)
  ;;
 
                               
@@ -329,10 +309,6 @@ let pr =fun a ->
    in aux puzzle puzzle ;;
 
 
-
-
-
-
  let solution_simple3= fun puzzle ->
    let rec aux = fun pdebut pfin ->
      match pdebut with
@@ -349,28 +325,6 @@ let pr =fun a ->
      |[]-> pfin
    in aux puzzle puzzle ;;
  
-
- 
- (*methode bis*)(*
- let solution_simple1= fun puzzle ->
-   let rec aux = fun pdebut pfin ->
-     toString pdebut;
-     match pdebut with
-    |((x1,y1),Island(1))::t when (nbrIleVoisine (x1,y1) pfin)=1 ->  aux t (tracerPontToutesDir (x1,y1) false pfin) 
-    |((x1,y1),Island(n))::t when (n<>0&&(n mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(n/2)) ->  aux t (tracerPontToutesDir (x1,y1) true pfin)
-(*    
-    |((x1,y1),Island(2))::t when  (nbrIleVoisine (x1,y1) pfin)=1  ->   aux t (tracerPontToutesDir (x1,y1) true pfin) 
-    |((x1,y1),Island(4))::t when (nbrIleVoisine (x1,y1) pfin)=2 ->  aux t (tracerPontToutesDir (x1,y1) true pfin) 
-    |((x1,y1),Island(6))::t when (nbrIleVoisine (x1,y1) pfin)=3 ->  aux t (tracerPontToutesDir (x1,y1) true pfin)  
-    |((x1,y1),Island(8))::t when (nbrIleVoisine (x1,y1) pfin)=4 ->  aux t (tracerPontToutesDir (x1,y1) true pfin) 
- *)
-    |h::t-> aux t pfin
-    |[]-> pfin
-  in aux puzzle puzzle ;;
-                 *)
-
-
-
 let solTout0 = fun puzzle ->
   let rec aux= fun p ->
     match p with
@@ -404,7 +358,7 @@ let remplacer0ParVal= fun pfini pdebut ->
     |(((x1,y1),Bridge{v=a;d=b})::t1),_::t2->aux t1 t2 (pfinal@[((x1,y1),Bridge{v=a;d=b})])
     |(h1::t1,h2::t2)->aux t1 t2 (pfinal@[h1])
     |([],[])->pfinal
-    | _ -> failwith "pute 2"
+    | _ -> failwith "Les puzzle ne sont pas le memes"
   in aux pfini pdebut [];;                                     
 
 let creerListeListe = fun p ->
@@ -440,8 +394,8 @@ let toStringLigne = fun p ->
 let toString = fun p ->
   let rec aux = fun p1 s->
     match p1 with
-    |[] -> s
-    |a::t -> aux t s^(toStringLigne a)
+    |[] -> s^"\n"
+    |a::t -> aux t (s^(toStringLigne a))
   in aux p "";;
 
 let main()=
