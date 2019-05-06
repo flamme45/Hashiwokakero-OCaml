@@ -1,7 +1,5 @@
 type coordinate = int * int ;;
 
-
-
 type importance = int;;
 
 type puzzle = (coordinate * importance ) list;;
@@ -246,7 +244,7 @@ let trouverIleVerticaleBas = fun (x1,y1) puzzle ->
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x1<>x2 && y2=y1 &&( not estVer || estDou )-> None
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x1<>x2 && y2=y1 && ( estVer) && (not estDou) -> aux t
     |_::t -> aux t
-  in aux (commencerA (x1,y1) puzzle);;
+  in if (importanceIle (x1,y1) puzzle)=0 then None else (aux (commencerA (x1,y1) puzzle));;
 
 let trouverIleVerticaleHaut = fun (x1,y1) puzzle ->
   let rec aux = fun l ->
@@ -258,7 +256,7 @@ let trouverIleVerticaleHaut = fun (x1,y1) puzzle ->
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x1<>x2 && y2=y1 &&( not estVer || estDou )-> None
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x1<>x2 && y2=y1 && ( estVer) && (not estDou) -> aux t
     |_::t -> aux t
-  in aux (commencerA (x1,y1) (List.rev puzzle));;
+  in if (importanceIle (x1,y1) puzzle)=0 then None else (aux (commencerA (x1,y1) (List.rev puzzle)));;
 
 let trouverIleHorizontaleDroite = fun (x1,y1) puzzle ->  
   let rec aux = fun l ->
@@ -270,7 +268,7 @@ let trouverIleHorizontaleDroite = fun (x1,y1) puzzle ->
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x2=x1 && y2<>y1 &&( estVer || estDou )-> None
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x2=x1 && y2<>y1 && (not estVer) && (not estDou) -> aux t
     |_::t -> aux t
-  in aux (commencerA (x1,y1) puzzle);;
+  in if (importanceIle (x1,y1) puzzle)=0 then None else (aux (commencerA (x1,y1) puzzle));;
 
 let trouverIleHorizontaleGauche = fun (x1,y1) puzzle ->  
   let rec aux = fun l ->
@@ -282,8 +280,45 @@ let trouverIleHorizontaleGauche = fun (x1,y1) puzzle ->
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x2=x1 && y2<>y1 &&( estVer || estDou )-> None
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x2=x1 && y2<>y1 && (not estVer) && (not estDou) -> aux t
     |_::t -> aux t
-  in aux (commencerA (x1,y1) (List.rev puzzle));;
+  in if (importanceIle (x1,y1) puzzle)=0 then None else (aux (commencerA (x1,y1) (List.rev puzzle)));;
+(*
+let trouverIleVerticaleBas = fun (x1,y1) puzzle ->
+  let rec aux = fun l ->
+    match l with
+    |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
+    |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t when x1<>x2 && y2=y1 -> None
+    |_::t -> aux t
+  in aux (commencerA (x1,y1) puzzle);;
 
+let trouverIleVerticaleHaut = fun (x1,y1) puzzle ->
+  let rec aux = fun l ->
+    match l with
+    |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
+    |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t when x1<>x2 && y1=y2 -> None                                  
+    |_::t -> aux t
+  in aux (commencerA (x1,y1) (List.rev (puzzle)));;
+
+
+let trouverIleHorizontaleDroite = fun (x1,y1) puzzle ->
+  let rec aux = fun l ->
+    match l with
+    |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
+    |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t when y1<>y2 && x2=x1 -> None                                  
+    |_::t ->aux t
+  in aux (commencerA (x1,y1) (puzzle));;
+
+let trouverIleHorizontaleGauche = fun (x1,y1) puzzle ->
+  let rec aux = fun l ->
+    match l with
+    |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
+    |[]-> None
+    |((x2,y2),Bridge{v=x;d=y})::t when x2=x1 && y1<>y2 -> None                                  
+    |_::t->aux t
+  in aux (commencerA (x1,y1) (List.rev (puzzle)));;
+ *)
 
 (*Methode qui compte le nombre d'iles voisines d'une ile sans compter celle qui sont déjà reliées*)
 let nbrIleVoisine = fun (x1,y1) p ->
@@ -304,6 +339,19 @@ let tranf = fun p ->
     |((x1,y1),i)::t -> aux t (l@[((x1,y1),Island(i))])
     | [] -> l
   in aux p [];;
+
+
+
+(*
+let remplacerValPar= fun  (x1,y1) repl p ->
+  let rec aux = fun  p l->
+    match p with
+    |((x2,y2),smth)::t -> if x1=y1 && x2=y2 then l@[((x2,y2),repl)]@t else aux t (l@[((x2,y2),smth)]) 
+    |[]->l
+  in aux p [];;
+ *)
+
+
 
 let tracerPont =fun (x1,y1) (x2,y2) estDouble puzl -> (* (0,2) (4,2) (Insland 10) puztranf *)
   let nbponts = if estDouble then 2 else 1 in
@@ -347,13 +395,50 @@ let pr =fun a ->
    let p= ( if (x<>None) then (tracerPont (pr(x)) (x1,y1) estDouble p) else p) in
    let x =(trouverIleHorizontaleGauche (x1,y1) p) in
    let p =( if (x<>None) then (tracerPont (pr(x)) (x1,y1) estDouble p) else p) in
-   p;;
+p;;
 
 
  (*Methode qui affiche le premier element de la liste*)
 
 
+ (*methode qui crée des ponts si
+  * Soit n l'importance et k le nombre de voisin d'une ile
+  * si n%2=0 et k=n/2 alors on crée des ponts doubles entre cette ile et ses voisins
+  * si n=1 et k=1 alors on crée un pont simple entre les deux iles
+*)
+ let solution_simple2= fun puzzle ->
+   let rec aux = fun pdebut pfin ->
+     match pdebut with
+     |((x1,y1),Island(k))::t when
+            let m = (importanceIle (x1,y1) pfin) in
+            m=1 &&(nbrIleVoisine (x1,y1) pfin)=1 ->  aux t (tracerPontToutesDir (x1,y1) false pfin) 
+     |((x1,y1),Island(n))::t when
+            let m = (importanceIle (x1,y1) pfin) in
+            (m<>0&&(m mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(m/2)) ->
+       aux t (tracerPontToutesDir (x1,y1) true pfin)
+     |h::t-> aux t pfin
+     |[]-> pfin
+   in aux puzzle puzzle ;;
 
+
+ let solution_simple3= fun puzzle ->
+   let rec aux = fun pdebut pfin ->
+     match pdebut with
+     |((x1,y1),Island(n))::t when
+            let m = (importanceIle (x1,y1) pfin) in
+            (m<>0&&((m+1) mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(((m+1)/2))) ->
+       aux t (tracerPontToutesDir (x1,y1) false pfin)
+     |((x1,y1),Island(n))::t when
+            let m = (importanceIle (x1,y1) pfin) in
+            (m<>0&&(m mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(m/2)) ->
+       aux t (tracerPontToutesDir (x1,y1) true pfin)
+
+     |h::t-> aux t pfin
+     |[]-> pfin
+   in aux puzzle puzzle ;;
+
+
+ 
  let a = fun (x,y) p ->
    if (trouverPontHorizontaleGauche (x,y) p) <> None then 1 else 2;;
  let b = fun (x,y) p ->
@@ -371,11 +456,7 @@ let pr =fun a ->
  
  
 
-  (*methode qui crée des ponts si
-  * Soit n l'importance et k le nombre de voisin d'une ile
-  * si n%2=0 et k=n/2 alors on crée des ponts doubles entre cette ile et ses voisins
-  * si n=1 et k=1 alors on crée un pont simple entre les deux iles
-*)
+ 
  let solution_simple4 = fun puzzle ->
    let rec aux = fun pdebut pfin ->
      match pdebut with
@@ -421,17 +502,6 @@ let resoudre =  fun p ->
          else aux pfin)
   in aux p;;
 
-
-let x=solution_simple4 (tranf puzzle3);;
-
-trouverIleHorizontaleGauche (0,4) x;;
-trouverIleHorizontaleDroite (0,4) x;;
-trouverIleVerticaleBas (0,4) x;;
-trouverIleVerticaleHaut (0,4) x;;
-
-tracerPontToutesDir (0,4) false x;;
-
-let y =solution_simple4 x;;
 
 
 let remplacer0ParVal= fun pfini pdebut ->
