@@ -281,44 +281,7 @@ let trouverIleHorizontaleGauche = fun (x1,y1) puzzle ->
     |((x2,y2),Bridge{v=estVer;d=estDou})::t when x2=x1 && y2<>y1 && (not estVer) && (not estDou) -> aux t
     |_::t -> aux t
   in if (importanceIle (x1,y1) puzzle)=0 then None else (aux (commencerA (x1,y1) (List.rev puzzle)));;
-(*
-let trouverIleVerticaleBas = fun (x1,y1) puzzle ->
-  let rec aux = fun l ->
-    match l with
-    |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
-    |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t when x1<>x2 && y2=y1 -> None
-    |_::t -> aux t
-  in aux (commencerA (x1,y1) puzzle);;
 
-let trouverIleVerticaleHaut = fun (x1,y1) puzzle ->
-  let rec aux = fun l ->
-    match l with
-    |((x2,y2),Island i)::t-> if x2<>x1 && y2=y1 then Some ((x2,y2),Island i) else aux t
-    |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t when x1<>x2 && y1=y2 -> None                                  
-    |_::t -> aux t
-  in aux (commencerA (x1,y1) (List.rev (puzzle)));;
-
-
-let trouverIleHorizontaleDroite = fun (x1,y1) puzzle ->
-  let rec aux = fun l ->
-    match l with
-    |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
-    |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t when y1<>y2 && x2=x1 -> None                                  
-    |_::t ->aux t
-  in aux (commencerA (x1,y1) (puzzle));;
-
-let trouverIleHorizontaleGauche = fun (x1,y1) puzzle ->
-  let rec aux = fun l ->
-    match l with
-    |((x2,y2),Island i)::t-> if x2=x1 && y2<>y1 then Some ((x2,y2),Island i) else aux t
-    |[]-> None
-    |((x2,y2),Bridge{v=x;d=y})::t when x2=x1 && y1<>y2 -> None                                  
-    |_::t->aux t
-  in aux (commencerA (x1,y1) (List.rev (puzzle)));;
- *)
 
 (*Methode qui compte le nombre d'iles voisines d'une ile sans compter celle qui sont déjà reliées*)
 let nbrIleVoisine = fun (x1,y1) p ->
@@ -339,17 +302,6 @@ let tranf = fun p ->
     |((x1,y1),i)::t -> aux t (l@[((x1,y1),Island(i))])
     | [] -> l
   in aux p [];;
-
-
-
-(*
-let remplacerValPar= fun  (x1,y1) repl p ->
-  let rec aux = fun  p l->
-    match p with
-    |((x2,y2),smth)::t -> if x1=y1 && x2=y2 then l@[((x2,y2),repl)]@t else aux t (l@[((x2,y2),smth)]) 
-    |[]->l
-  in aux p [];;
- *)
 
 
 
@@ -406,38 +358,6 @@ p;;
   * si n%2=0 et k=n/2 alors on crée des ponts doubles entre cette ile et ses voisins
   * si n=1 et k=1 alors on crée un pont simple entre les deux iles
 *)
- let solution_simple2= fun puzzle ->
-   let rec aux = fun pdebut pfin ->
-     match pdebut with
-     |((x1,y1),Island(k))::t when
-            let m = (importanceIle (x1,y1) pfin) in
-            m=1 &&(nbrIleVoisine (x1,y1) pfin)=1 ->  aux t (tracerPontToutesDir (x1,y1) false pfin) 
-     |((x1,y1),Island(n))::t when
-            let m = (importanceIle (x1,y1) pfin) in
-            (m<>0&&(m mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(m/2)) ->
-       aux t (tracerPontToutesDir (x1,y1) true pfin)
-     |h::t-> aux t pfin
-     |[]-> pfin
-   in aux puzzle puzzle ;;
-
-
- let solution_simple3= fun puzzle ->
-   let rec aux = fun pdebut pfin ->
-     match pdebut with
-     |((x1,y1),Island(n))::t when
-            let m = (importanceIle (x1,y1) pfin) in
-            (m<>0&&((m+1) mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(((m+1)/2))) ->
-       aux t (tracerPontToutesDir (x1,y1) false pfin)
-     |((x1,y1),Island(n))::t when
-            let m = (importanceIle (x1,y1) pfin) in
-            (m<>0&&(m mod 2=0) && (nbrIleVoisine (x1,y1) pfin)=(m/2)) ->
-       aux t (tracerPontToutesDir (x1,y1) true pfin)
-
-     |h::t-> aux t pfin
-     |[]-> pfin
-   in aux puzzle puzzle ;;
-
-
  
  let a = fun (x,y) p ->
    if (trouverPontHorizontaleGauche (x,y) p) <> None then 1 else 2;;
@@ -553,7 +473,7 @@ let toString = fun p ->
   in aux p "";;
 
 let main()=
-  print_string (toString (resultatFinal puzzle3));;
+  print_string (toString (resultatFinal puzzle4));;
 
 
 main ();;
